@@ -28,6 +28,8 @@
 
 HMPE_START
 
+typedef size_t UpdateID;
+
 template <typename Type>
 using Unique = std::unique_ptr<Type>;
 

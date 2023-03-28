@@ -6,6 +6,7 @@
 #define HMPE_COLLISION_HPP
 
 #include <vector>
+#include <list>
 
 #include "hmpe/utils.hpp"
 #include "hmmath/math.hpp"
@@ -27,13 +28,29 @@ struct HMPE_API ContactInfo {
     Vec2 normal = {};
     float depth = 0.0f;
 
-    Vec2 dualPoint1 {};
-    Vec2 dualPoint2 {};
-
-    std::vector<Vec2> md {};
-    std::vector<Vec2> closest {};
-
     static ContactInfo of(BodyRef b1, BodyRef b2);
+};
+
+class Manifold {
+public:
+    Manifold() = default;
+
+    void addContact(ContactInfo& info, UpdateID now);
+    [[nodiscard]]
+    bool isOutdated(UpdateID now) const;
+
+    [[nodiscard]]
+    auto begin() { return contacts.begin(); };
+    [[nodiscard]]
+    auto end() { return contacts.end(); }
+
+    [[nodiscard]]
+    auto begin() const { return contacts.begin(); };
+    [[nodiscard]]
+    auto end() const { return contacts.end(); }
+private:
+    std::list<ContactInfo> contacts {};
+    UpdateID last = 0;
 };
 
 void HMPE_API collide(ContactInfo& info);

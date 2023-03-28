@@ -71,12 +71,5 @@ private:
     int type = 0;
 };
 
-
-Solution solveKinematicContact(ContactInfo& info, float delta);
-Solution solveContact(ContactInfo& info, float delta);
-
-Solution solveKinematicFriction(ContactInfo& info, float contactLambda);
-Solution solveFriction(ContactInfo& info, float contactLambda);
-
 HMPE_END
 #endif //HMPE_SOLVER_HPP

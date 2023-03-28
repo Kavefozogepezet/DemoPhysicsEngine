@@ -15,30 +15,6 @@
 
 HMPE_START
 
-typedef size_t UpdateID;
-
-class Manifold {
-public:
-    Manifold() = default;
-
-    void addContact(ContactInfo& info, UpdateID now);
-    [[nodiscard]]
-    bool isOutdated(UpdateID now) const;
-
-    [[nodiscard]]
-    auto begin() { return contacts.begin(); };
-    [[nodiscard]]
-    auto end() { return contacts.end(); }
-
-    [[nodiscard]]
-    auto begin() const { return contacts.begin(); };
-    [[nodiscard]]
-    auto end() const { return contacts.end(); }
-private:
-    std::list<ContactInfo> contacts {};
-    UpdateID last = 0;
-};
-
 class HMPE_API World {
 public:
     using CallbackFunc = std::function<void(ContactInfo&)>;

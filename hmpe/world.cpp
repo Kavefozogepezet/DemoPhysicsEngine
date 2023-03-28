@@ -9,30 +9,6 @@
 
 HMPE_START
 
-void Manifold::addContact(ContactInfo &info, UpdateID now) {
-    last = now;
-    for(auto it = contacts.begin(); it != contacts.end();) {
-        float l1 = Math::length(it->point1 - info.point1);
-        float l2 = Math::length(it->point2 - info.point2);
-        bool tooClose = l1 < 0.1f || l2 < 0.1f;
-
-        Vec2 oldPos1 = info.body1->position + it->localPoint1;
-        Vec2 oldPos2 = info.body2->position + it->localPoint2;
-        bool r1 = !Math::floatEq(Math::length(oldPos1 - it->point1), 0.0f, 50000.0f);
-        bool r2 = !Math::floatEq(Math::length(oldPos2 - it->point2), 0.0f, 50000.0f);
-
-        if(tooClose || r1 || r2) it = contacts.erase(it);
-        else it++;
-    }
-    contacts.push_front(info);
-    if(contacts.size() > 2)
-        contacts.pop_back();
-}
-
-bool Manifold::isOutdated(UpdateID now) const {
-    return now != last;
-}
-
 World::World(const Vec2 &gravity) :
     gravity(gravity)
 {}
@@ -79,14 +55,8 @@ void World::gatherCollisions() {
         for(++bodyIt2; bodyIt2 != bodies.end(); bodyIt2++) {
             auto info = ContactInfo::of(*bodyIt1, *bodyIt2);
             collide(info);
-            if(info.collision) {
-                info.md.reserve(M_PI / 0.2f);
-                for(float i = 0.0f; i < 2 * M_PI; i += 0.1f) {
-                    Vec2 n = Math::rotate(Vec2 { 1.0f, 0.0f }, i);
-                    info.md.push_back((*bodyIt1)->support(n) - (*bodyIt2)->support(-n));
-                }
+            if(info.collision)
                 getManifold(info.body1, info.body2).addContact(info, now);
-            }
         }
     }
     clearOutdatedManifolds();

@@ -23,6 +23,30 @@ ContactInfo ContactInfo::of(BodyRef b1, BodyRef b2) {
     return info;
 }
 
+void Manifold::addContact(ContactInfo &info, UpdateID now) {
+    last = now;
+    for(auto it = contacts.begin(); it != contacts.end();) {
+        float l1 = Math::length(it->point1 - info.point1);
+        float l2 = Math::length(it->point2 - info.point2);
+        bool tooClose = l1 < 0.1f || l2 < 0.1f;
+
+        Vec2 oldPos1 = info.body1->position + it->localPoint1;
+        Vec2 oldPos2 = info.body2->position + it->localPoint2;
+        bool r1 = !Math::floatEq(Math::length(oldPos1 - it->point1), 0.0f, 50000.0f);
+        bool r2 = !Math::floatEq(Math::length(oldPos2 - it->point2), 0.0f, 50000.0f);
+
+        if(tooClose || r1 || r2) it = contacts.erase(it);
+        else it++;
+    }
+    contacts.push_front(info);
+    if(contacts.size() > 2)
+        contacts.pop_back();
+}
+
+bool Manifold::isOutdated(UpdateID now) const {
+    return now != last;
+}
+
 struct SupportPoint : public Vec2 {
     Vec2 pointOnB1, pointOnB2;
 
@@ -228,10 +252,6 @@ static void epa(Polytope& polytope, ContactInfo& info) {
     info.localPoint2 = info.point2 - b2->position;
 
     info.normal = -Math::normalToOrigin(closest->p1(), closest->p2());
-    //info.depth = Math::length(info.point1 - info.point2);
-
-    info.closest.push_back(closest->p1());
-    info.closest.push_back(closest->p2());
 }
 
 void collide(ContactInfo& info) {
@@ -246,6 +266,11 @@ void collide(ContactInfo& info) {
     if(info.collision) {
         Polytope polytope(simplex);
         epa(polytope, info);
+
+        // TODO This is a hotfix for epa finding the contact points on opposing ends of the objects causing an explosion
+        float l = Math::length(info.point1 - info.point2);
+        if(l > 0.5f)
+            info.collision = false;
     }
 }
 
