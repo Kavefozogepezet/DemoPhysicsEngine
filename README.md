@@ -1,6 +1,9 @@
 # DemoPhysicsEngine
 A 2023-as Berzsenyis fizikatáborban bemutatott szimulációs technikákat példázó demo program.
 
+A program fehasználja a glm könyvtárat, ezt azonban nem másoltam be ide, helyette [innen](https://github.com/g-truc/glm) töltendő le.
+A glm hasznos vektor és mátrix osztályokat és műveleteket valósít meg. Header only, szóval csak be kell másolni és működni fog.
+
 ## Hogyan használd
 
 ### World
